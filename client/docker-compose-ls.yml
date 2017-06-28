@@ -1,0 +1,7 @@
+version: '3'
+services:
+    logstash:
+        build: ./logstash
+        volumes:
+            - $PWD/logstash/pipeline/:/usr/share/logstash/pipeline/
+            - /opt/sample_logs/:/opt/sample_logs/
