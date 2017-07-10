@@ -1,6 +1,6 @@
 version: '2'
 services:
-    elasticsearch1:
+    elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:5.4.3
         container_name: elasticsearch1
         restart: always
@@ -30,7 +30,7 @@ services:
             - cluster.name=docker-cluster
             - bootstrap.memory_lock=true
             - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-            - "discovery.zen.ping.unicast.hosts=elasticsearch1"
+            - "discovery.zen.ping.unicast.hosts=elasticsearch"
             - xpack.security.enabled=false
         ulimits:
             memlock:
@@ -48,12 +48,25 @@ services:
         volumes:
             - ./kibana.yml:/usr/share/kibana/config/kibana.yml
         environment:
-            - ELASTICSEARCH_URL="http://elasticsearch1:9200"
+            - ELASTICSEARCH_URL="http://elasticsearch:9200"
             - SERVER_HOST="kibana"
             - SERVER_PORT=5601
             - XPACK_SECURITY_ENABLED=false
         expose:
             - 5601
+        networks:
+            - esnet
+
+    logstash:
+        image: docker.elastic.co/logstash/logstash:5.4.3
+        restart : always
+        volumes:
+            - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+        expose:
+            - 5044
+        ports:
+            - 5044:5044
+            - 9600:9600
         networks:
             - esnet
 
@@ -68,6 +81,7 @@ services:
         ports:
             - 8000:8000
             - 8001:8001
+            - 8002:8002
         networks:
             - esnet
 
